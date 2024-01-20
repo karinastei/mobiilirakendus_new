@@ -1,118 +1,107 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React, {useEffect} from 'react';
+import {SafeAreaView} from 'react-native';
+import Splash from './src/screens/auth/Splash';
+import AuthHeader from './src/components/AuthHeader';
+import Signup from './src/screens/auth/Signup';
+import Input from './src/components/Input';
+import Signin from './src/screens/auth/Signin';
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {colors} from './src/utils/colors';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import Home from './src/screens/app/Home';
+import Favorites from './src/screens/app/Favorites';
+import {Image} from 'react-native';
+import Profile from './src/screens/app/Profile';
+import ProductDetails from './src/screens/app/ProductDetails';
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+const Stack = createNativeStackNavigator();
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const Tab = createBottomTabNavigator();
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+const Tabs = () => {
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
+    <Tab.Navigator
+      screenOptions={({route}) => ({
+        tabBarIcon: ({focused, color, size}) => {
+          let icon;
+
+          if (route.name === 'Home') {
+            icon = focused
+              ? require('./src/assets/tabs/clarity_home_solid.png')
+              : require('./src/assets/tabs/clarity_home_grey.png');
+          } else if (route.name === 'Favorites') {
+            icon = focused
+              ? require('./src/assets/tabs/marker_solid.png')
+              : require('./src/assets/tabs/marker_grey.png');
+          } else if (route.name === 'Profile') {
+            icon = focused
+              ? require('./src/assets/tabs/group_solid.png')
+              : require('./src/assets/tabs/group_grey.png');
+          }
+          return <Image style={{width: 24, height: 24}} source={icon} />;
+        },
+        headerShown: false,
+        tabBarShowLabel: false,
+        tabBarStyle: {borderTopColor: colors.lightGrey},
+      })}>
+      <Tab.Screen name="Home" component={Home} />
+      <Tab.Screen name="Favorites" component={Favorites} />
+      <Tab.Screen name="Profile" component={Profile} />
+    </Tab.Navigator>
   );
-}
+};
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+const App = () => {
+  const isSignedIn = true;
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  const theme = {
+    colors: {
+      background: colors.white,
+    },
   };
-
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <SafeAreaProvider>
+      <NavigationContainer theme={theme}>
+        <Stack.Navigator>
+          {isSignedIn ? (
+            <>
+              <Stack.Screen
+                name="Tabs"
+                component={Tabs}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="ProductDetails"
+                component={ProductDetails}
+                options={{headerShown: false}}
+              />
+            </>
+          ) : (
+            <>
+              <Stack.Screen
+                name="Splash"
+                component={Splash}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="Signup"
+                component={Signup}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="Signin"
+                component={Signin}
+                options={{headerShown: false}}
+              />
+            </>
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
-}
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
+};
 
 export default App;
